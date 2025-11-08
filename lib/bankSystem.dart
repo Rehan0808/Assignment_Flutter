@@ -1,11 +1,10 @@
-// Banking System OOP Challenge - Beginner-friendly Dart implementation
-// File: banking_system.dart
+
 
 import 'dart:math';
 
-// -------------------------------
+
 // 1) Abstract base class BankAccount
-// -------------------------------
+
 abstract class BankAccount {
   // Private fields (encapsulation)
   String _accountNumber;
@@ -16,7 +15,10 @@ abstract class BankAccount {
   final List<String> transactions = [];
 
   BankAccount(this._accountNumber, this._holderName, this._balance) {
-    if (_balance < 0) throw ArgumentError('Initial balance cannot be negative');
+    if (_balance < 0) {
+      print('Error: Initial balance cannot be negative');
+      _balance = 0;
+    }
   }
 
   // Getters
@@ -26,8 +28,11 @@ abstract class BankAccount {
 
   // Setters with basic validation
   set holderName(String name) {
-    if (name.trim().isEmpty) throw ArgumentError('Name cannot be empty');
-    _holderName = name;
+    if (name.trim().isEmpty) {
+      print('Error: Name cannot be empty');
+    } else {
+      _holderName = name;
+    }
   }
 
   // Protected helper to change balance within subclasses
@@ -56,20 +61,16 @@ abstract class BankAccount {
   }
 }
 
-// -------------------------------
 // 2) Interface / abstract class for interest-bearing accounts
-// -------------------------------
-abstract class InterestBearing {
-  // Returns interest amount (not applied)
-  double calculateInterest();
 
-  // Apply interest to account (mutates balance)
+abstract class InterestBearing {
+  double calculateInterest();
   void applyInterest();
 }
 
-// -------------------------------
+
 // 3) SavingsAccount
-// -------------------------------
+
 class SavingsAccount extends BankAccount implements InterestBearing {
   static const double minBalance = 500.0;
   static const double annualInterestRate = 0.02; // 2%
@@ -80,13 +81,16 @@ class SavingsAccount extends BankAccount implements InterestBearing {
   SavingsAccount(String accNo, String name, double initialBalance)
       : super(accNo, name, initialBalance) {
     if (initialBalance < minBalance) {
-      throw ArgumentError('Savings account requires minimum \$${minBalance}');
+      print('Error: Savings account requires minimum \$${minBalance}');
     }
   }
 
   @override
   void withdraw(double amount) {
-    if (amount <= 0) throw ArgumentError('Withdraw amount should be positive');
+    if (amount <= 0) {
+      print('Error: Withdraw amount should be positive');
+      return;
+    }
     if (_monthlyWithdrawals >= withdrawalLimitPerMonth) {
       print('Withdrawal failed: monthly withdrawal limit reached');
       return;
@@ -102,19 +106,20 @@ class SavingsAccount extends BankAccount implements InterestBearing {
 
   @override
   void deposit(double amount) {
-    if (amount <= 0) throw ArgumentError('Deposit amount should be positive');
+    if (amount <= 0) {
+      print('Error: Deposit amount should be positive');
+      return;
+    }
     changeBalance(amount, reason: 'Savings deposit');
     print('Deposited \$${amount.toStringAsFixed(2)} to Savings');
   }
 
-  // Reset monthly counters (call from Bank at month boundary)
   void resetMonthlyCounters() {
     _monthlyWithdrawals = 0;
   }
 
   @override
   double calculateInterest() {
-    // monthly interest based on annual rate
     return balance * (annualInterestRate / 12);
   }
 
@@ -127,7 +132,9 @@ class SavingsAccount extends BankAccount implements InterestBearing {
   }
 }
 
+
 // 4) CheckingAccount
+
 class CheckingAccount extends BankAccount {
   static const double overdraftFee = 35.0;
 
@@ -136,7 +143,10 @@ class CheckingAccount extends BankAccount {
 
   @override
   void withdraw(double amount) {
-    if (amount <= 0) throw ArgumentError('Withdraw amount should be positive');
+    if (amount <= 0) {
+      print('Error: Withdraw amount should be positive');
+      return;
+    }
 
     changeBalance(-amount, reason: 'Checking withdrawal');
     print('Withdrawn \$${amount.toStringAsFixed(2)} from Checking');
@@ -149,11 +159,16 @@ class CheckingAccount extends BankAccount {
 
   @override
   void deposit(double amount) {
-    if (amount <= 0) throw ArgumentError('Deposit amount should be positive');
+    if (amount <= 0) {
+      print('Error: Deposit amount should be positive');
+      return;
+    }
     changeBalance(amount, reason: 'Checking deposit');
     print('Deposited \$${amount.toStringAsFixed(2)} to Checking');
   }
 }
+
+
 // 5) PremiumAccount
 
 class PremiumAccount extends BankAccount implements InterestBearing {
@@ -163,13 +178,16 @@ class PremiumAccount extends BankAccount implements InterestBearing {
   PremiumAccount(String accNo, String name, double initialBalance)
       : super(accNo, name, initialBalance) {
     if (initialBalance < minBalance) {
-      throw ArgumentError('Premium account requires minimum \$${minBalance}');
+      print('Error: Premium account requires minimum \$${minBalance}');
     }
   }
 
   @override
   void withdraw(double amount) {
-    if (amount <= 0) throw ArgumentError('Withdraw amount should be positive');
+    if (amount <= 0) {
+      print('Error: Withdraw amount should be positive');
+      return;
+    }
     if (amount > balance) {
       print('Withdrawal failed: insufficient funds');
       return;
@@ -180,7 +198,10 @@ class PremiumAccount extends BankAccount implements InterestBearing {
 
   @override
   void deposit(double amount) {
-    if (amount <= 0) throw ArgumentError('Deposit amount should be positive');
+    if (amount <= 0) {
+      print('Error: Deposit amount should be positive');
+      return;
+    }
     changeBalance(amount, reason: 'Premium deposit');
     print('Deposited \$${amount.toStringAsFixed(2)} to Premium');
   }
@@ -200,7 +221,7 @@ class PremiumAccount extends BankAccount implements InterestBearing {
 }
 
 
-// 6) StudentAccount (extension)
+// 6) StudentAccount
 
 class StudentAccount extends BankAccount {
   static const double maxBalance = 5000.0;
@@ -208,13 +229,16 @@ class StudentAccount extends BankAccount {
   StudentAccount(String accNo, String name, double initialBalance)
       : super(accNo, name, initialBalance) {
     if (initialBalance > maxBalance) {
-      throw ArgumentError('Initial balance exceeds student account maximum');
+      print('Error: Initial balance exceeds student account maximum');
     }
   }
 
   @override
   void withdraw(double amount) {
-    if (amount <= 0) throw ArgumentError('Withdraw amount should be positive');
+    if (amount <= 0) {
+      print('Error: Withdraw amount should be positive');
+      return;
+    }
     if (amount > balance) {
       print('Withdrawal failed: insufficient funds');
       return;
@@ -225,10 +249,12 @@ class StudentAccount extends BankAccount {
 
   @override
   void deposit(double amount) {
-    if (amount <= 0) throw ArgumentError('Deposit amount should be positive');
+    if (amount <= 0) {
+      print('Error: Deposit amount should be positive');
+      return;
+    }
     if (balance + amount > maxBalance) {
-      print(
-          'Deposit failed: would exceed student account maximum of \$${maxBalance}');
+      print('Deposit failed: would exceed student account maximum of \$${maxBalance}');
       return;
     }
     changeBalance(amount, reason: 'Student deposit');
@@ -241,10 +267,10 @@ class StudentAccount extends BankAccount {
 class Bank {
   final Map<String, BankAccount> _accounts = {};
 
-  // Create new accounts (basic factory method); returns account number
   String createAccount(BankAccount account) {
     if (_accounts.containsKey(account.accountNumber)) {
-      throw ArgumentError('Account number already exists');
+      print('Error: Account number already exists');
+      return account.accountNumber;
     }
     _accounts[account.accountNumber] = account;
     return account.accountNumber;
@@ -271,8 +297,7 @@ class Bank {
           '${DateTime.now().toIso8601String()} | Transfer out | \$${amount.toStringAsFixed(2)} | To: ${to.accountNumber}');
       to.transactions.add(
           '${DateTime.now().toIso8601String()} | Transfer in | \$${amount.toStringAsFixed(2)} | From: ${from.accountNumber}');
-      print(
-          'Transfer \$${amount.toStringAsFixed(2)} from ${from.accountNumber} to ${to.accountNumber}');
+      print('Transfer \$${amount.toStringAsFixed(2)} from ${from.accountNumber} to ${to.accountNumber}');
       return true;
     } catch (e) {
       print('Transfer failed with error: $e');
@@ -280,17 +305,14 @@ class Bank {
     }
   }
 
-  // Generate a simple report of all accounts
   void generateReport() {
     print('--- Bank Accounts Report ---');
     for (final acc in _accounts.values) {
-      print(
-          'Account: ${acc.accountNumber} | Holder: ${acc.holderName} | Balance: \$${acc.balance.toStringAsFixed(2)}');
+      print('Account: ${acc.accountNumber} | Holder: ${acc.holderName} | Balance: \$${acc.balance.toStringAsFixed(2)}');
     }
     print('--- End of Report ---');
   }
 
-  // Apply monthly interest to all interest-bearing accounts
   void applyMonthlyInterestToAll() {
     for (final acc in _accounts.values) {
       if (acc is InterestBearing) {
@@ -300,7 +322,6 @@ class Bank {
           print('Failed to apply interest to ${acc.accountNumber}: $e');
         }
       }
-
       if (acc is SavingsAccount) {
         acc.resetMonthlyCounters();
       }
@@ -308,9 +329,8 @@ class Bank {
   }
 }
 
-// -------------------------------
 // 8) Demonstration (main)
-// -------------------------------
+
 void main() {
   final bank = Bank();
 
@@ -330,12 +350,12 @@ void main() {
   savings.withdraw(100);
   savings.withdraw(100);
   savings.withdraw(50);
-  savings.withdraw(10); // should hit withdrawal limit
+  savings.withdraw(10); 
 
-  checking.withdraw(300); // causes overdraft and fee
+  checking.withdraw(300); 
 
-  student.deposit(4900); // should reach near max
-  student.deposit(100); // should fail (over max)
+  student.deposit(4900); 
+  student.deposit(100); 
 
   bank.transfer('PRM3001', 'CHK2001', 500.0);
 
